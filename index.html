@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VIDEKI – Offline AI Video Indexer</title>
+<meta name="description" content="Never scrub through hours of raw footage again. VIDEKI indexes your videos scene by scene with a local AI and writes a searchable SRT scene log for your timeline. 100% offline.">
+<link rel="icon" href="assets/videki-icon.svg" type="image/svg+xml">
+<meta property="og:title" content="VIDEKI – Offline AI Video Indexer">
+<meta property="og:description" content="Never scrub through hours of raw footage again. 100% private, 100% offline, zero subscription.">
+<meta property="og:image" content="assets/search.gif">
+<style>
+  :root{
+    --bg:#0b0b0d; --panel:#16171c; --panel2:#1e2027; --line:rgba(255,255,255,.08);
+    --text:#dcdee8; --dim:#8a8d9c; --accent:#f0952b;
+    --red:#ff5a4f; --orange:#f0952b; --green:#4cc76e; --blue:#4e7fbf; --lock:#4cc76e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif}
+  a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+  header.hero{position:relative;overflow:hidden;padding:72px 0 40px;text-align:center;
+    background:radial-gradient(60% 50% at 50% 30%,rgba(78,127,191,.2),transparent 70%),radial-gradient(rgba(255,255,255,.035) 1px,transparent 1.4px) 0 0/6px 6px}
+  .logo{display:inline-flex;align-items:center;gap:.12em;font:900 italic clamp(52px,11vw,104px)/1 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:-.02em;color:#fff}
+  .eki{position:relative;display:inline-block;transform:skewX(-14deg);padding:.04em .18em .02em;margin-left:.08em;box-shadow:.07em .07em 0 #fff;
+    background:repeating-linear-gradient(90deg,transparent 0 .06em,rgba(255,255,255,.18) .06em .3em,transparent .3em .36em),
+               linear-gradient(var(--red) 0 25%,var(--orange) 25% 50%,var(--green) 50% 75%,var(--blue) 75%)}
+  .eki i{display:inline-block;transform:skewX(14deg);font-style:italic;color:#fff;text-shadow:0 .02em .06em rgba(0,0,0,.35)}
+  .bands{display:flex;justify-content:center;gap:6px;margin:22px auto 14px;width:min(520px,80%)}
+  .bands span{flex:1;height:4px;border-radius:2px}
+  .sub{font:700 13px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.42em;color:#c9cbd6;margin-bottom:26px}
+  .tag{font-size:clamp(19px,2.7vw,25px);max-width:820px;margin:0 auto 30px;color:#e9eaf1;line-height:1.4}
+  .tag b{color:#fff}
+  .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:13px 22px;border-radius:12px;font-weight:800;letter-spacing:.02em;border:1px solid var(--line)}
+  .btn.primary{background:var(--accent);color:#1a1206;box-shadow:0 8px 30px rgba(240,149,43,.28)} .btn.primary:hover{text-decoration:none;filter:brightness(1.08)}
+  .btn.ghost{background:var(--panel2);color:var(--text)} .btn.ghost:hover{text-decoration:none;background:#262833}
+  .btn.soon{cursor:default;position:relative;overflow:hidden}
+  .btn.soon::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);transform:translateX(-100%);animation:shine 3.2s ease-in-out infinite}
+  @keyframes shine{60%,100%{transform:translateX(100%)}}
+  .req{margin-top:12px;font-size:13px;color:var(--dim)}
+  .lockline{display:inline-flex;align-items:center;gap:8px;margin-top:18px;font:700 12px ui-monospace,Menlo,monospace;letter-spacing:.08em;color:#8fe0a8;
+    background:rgba(76,199,110,.1);border:1px solid rgba(76,199,110,.35);padding:6px 12px;border-radius:999px}
+  .shot{margin:40px auto 0;border-radius:14px;overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 80px rgba(0,0,0,.6);background:#000}
+  .shot img{display:block;width:100%;height:auto}
+  section{padding:64px 0}
+  h2{font:900 italic clamp(28px,4vw,38px)/1.1 -apple-system,BlinkMacSystemFont,sans-serif;color:#fff;margin:0 0 10px;letter-spacing:-.01em}
+  .lead{color:var(--dim);max-width:740px;margin:0 0 30px}
+  .lead b{color:#fff}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 22px 20px;position:relative;overflow:hidden}
+  .card::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--c)}
+  .card .ic{font-size:26px}
+  .card h3{margin:6px 0 4px;color:#fff;font-size:19px;line-height:1.25}
+  .card .h{font:700 12px ui-monospace,Menlo,monospace;letter-spacing:.06em;color:var(--c);margin-bottom:10px}
+  .card p{margin:0;color:#c3c6d3;font-size:14.5px}
+  .k{display:inline-block;font:700 12px ui-monospace,Menlo,monospace;background:#fff;color:#000;border-radius:5px;padding:1px 7px;margin:0 2px}
+  .step{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:28px;align-items:center;padding:26px 0;border-top:1px solid var(--line)}
+  .step:nth-child(even){grid-template-columns:minmax(0,7fr) minmax(0,5fr)}
+  .step:nth-child(even) .txt{order:2}
+  .num{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--c,var(--accent));color:#111;font-weight:900;margin-bottom:10px}
+  .step h3{margin:0 0 8px;color:#fff;font:900 italic 24px/1.15 -apple-system,BlinkMacSystemFont,sans-serif}
+  .step p{margin:0 0 8px;color:#c3c6d3}
+  .step img{width:100%;border-radius:12px;border:1px solid var(--line);display:block;background:#000}
+  .msgs{font:12.5px/1.9 ui-monospace,Menlo,monospace;color:#8fe0a8;background:#0f1411;border:1px solid rgba(76,199,110,.25);border-radius:10px;padding:12px 16px;margin-top:12px}
+  .msgs span{color:#5b6b60}
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);color:#c9ccd8} td:first-child{white-space:nowrap;width:1%;padding-right:22px}
+  pre{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;overflow:auto;font:13px ui-monospace,Menlo,monospace;color:#e6e7ee}
+  .files{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;font-size:14.5px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 20px}
+  .files code{font:600 13px ui-monospace,Menlo,monospace;color:#fff}
+  .files span{color:#c3c6d3}
+  footer{padding:40px 0 60px;color:var(--dim);font-size:13px;text-align:center;border-top:1px solid var(--line)}
+  footer b{color:#fff;letter-spacing:.18em}
+  @media (max-width:760px){
+    .step,.step:nth-child(even){grid-template-columns:1fr} .step:nth-child(even) .txt{order:0}
+    header.hero{padding-top:48px}
+    .sub{letter-spacing:.2em;font-size:11px}
+  }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="logo">VID<span class="eki"><i>EKI</i></span></div>
+    <div class="bands"><span style="background:var(--red)"></span><span style="background:var(--orange)"></span><span style="background:var(--green)"></span><span style="background:var(--blue)"></span></div>
+    <div class="sub">OFFLINE · AI · VIDEO INDEXER</div>
+    <p class="tag"><b>Never scrub through hours of raw footage again.</b><br>Let VIDEKI generate a searchable SRT scene log for your timeline.</p>
+    <div class="cta">
+      <span class="btn primary soon">Apple Silicon app · coming soon</span>
+      <a class="btn ghost" href="#how">See how it works</a>
+    </div>
+    <div class="req">Native app for Apple Silicon Macs · runs 100% locally with Gemma 4 · made for DaVinci Resolve editors</div>
+    <div class="lockline">🔒 PROCESSING LOCALLY ON YOUR DEVICE</div>
+    <div class="shot"><img src="assets/search.gif" alt="Searching the footage in plain language and jumping to the scene"></div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>Your footage never leaves your Mac.</h2>
+    <p class="lead">Cloud video AI means uploading raw footage – yours or your client's – to someone else's servers. VIDEKI does the opposite: it installs a complete AI brain on your machine and keeps everything there.</p>
+    <div class="grid">
+      <div class="card" style="--c:var(--lock)"><div class="ic">🔒</div><h3>100% Private Video Analysis</h3><div class="h">NO CLOUD · NO UPLOADS · TOTAL PRIVACY</div>
+        <p>Every frame is analysed on your own CPU and GPU. Nothing is uploaded, no account, no telemetry. Client footage under NDA? It stays on your SSD.</p></div>
+      <div class="card" style="--c:var(--blue)"><div class="ic">✈️</div><h3>Analyze footage on a plane</h3><div class="h">ZERO PING · TRUE OFFLINE AI</div>
+        <p>VIDEKI uses your Mac's own hardware. It builds your searchable SRT scene logs even in a mountain cabin, far from any Wi-Fi signal.</p></div>
+      <div class="card" style="--c:var(--orange)"><div class="ic">∞</div><h3>Infinite AI Processing</h3><div class="h">ZERO SUBSCRIPTION FEES</div>
+        <p>Cloud APIs charge per call and per credit. A local AI runs as long as there is power – index a thousand clips tonight, and never pay a monthly fee for it.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="how" style="padding-top:10px">
+  <div class="wrap">
+    <h2>From raw clips to a searchable library</h2>
+    <p class="lead">Pick your videos in the evening, glance over the frames, press one button – and in the morning every clip can be found by what is <b>in</b> it.</p>
+    <div>
+      <div class="step"><div class="txt"><div class="num" style="--c:var(--red)">1</div><h3>Drop your videos</h3>
+        <p>Drag clips or whole folders onto VIDEKI, or pick them in Finder. Nothing is copied or uploaded – VIDEKI just finds them where they are.</p>
+        <p>DJI footage with <code>.LRF</code> proxies is analysed from the light proxy; 4K LOG clips are colour-corrected for the AI only.</p></div>
+        <img src="assets/setup.gif" alt="First-run setup: local AI engine and models"></div>
+      <div class="step"><div class="txt"><div class="num" style="--c:var(--orange)">2</div><h3>Every scene, one frame</h3>
+        <p>VIDEKI grabs a frame at every scene change (or every few seconds), right under the video and its audio waveform. Delete near-duplicates in one click, switch face recognition on or off per frame, add your own notes – <i>“Dad turns 50, it's raining outside”</i> – and add any frame by hand.</p></div>
+        <img src="assets/review.gif" alt="Reviewing the scene frames before analysis"></div>
+      <div class="step"><div class="txt"><div class="num" style="--c:var(--green)">3</div><h3>Start all – and go to sleep</h3>
+        <p>One button analyses every opened video. The Mac stays awake while it works; the live monitor shows your own CPU, GPU and RAM sweating – not a remote server.</p>
+        <div class="msgs">Loading local neural engine… <span>✓</span><br>Analyzing frame purely on-device… <span>✓</span><br>Securing data to local disk… <span>✓</span></div></div>
+        <img src="assets/analysis.gif" alt="Analysis running locally with the system monitor"></div>
+      <div class="step"><div class="txt"><div class="num" style="--c:var(--blue)">4</div><h3>Search in your own words</h3>
+        <p>Type <i>seagulls</i>, <i>church</i>, a person's name or one of your notes. Keyword and meaning-based search work together – even across languages. Results show every clip with the exact scenes and timecodes, even when the drive is unplugged.</p></div>
+        <img src="assets/search.gif" alt="Search results grouped by video"></div>
+      <div class="step"><div class="txt"><div class="num" style="--c:var(--accent)">5</div><h3>Jump straight to the shot</h3>
+        <p>Click a result and the viewer lands on the second. A Resolve-style timeline shows every scene on V1 and the audio waveform on A1 – scrub, read the AI's description and tags in the Inspector, and know who is in the frame.</p></div>
+        <img src="assets/media.gif" alt="Viewer, inspector and timeline"></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:10px">
+  <div class="wrap">
+    <h2>Made for your timeline</h2>
+    <p class="lead">Next to every video VIDEKI writes small sidecar files – they travel with your footage, and the index can always be rebuilt from them.</p>
+    <div class="files">
+      <code>CLIP.srt</code><span>a scene log as subtitles – drop it on the DaVinci Resolve timeline and see what is in every shot</span>
+      <code>CLIP.vidx.json</code><span>scenes, descriptions, tags, people and notes – renamed or moved clips are re-paired by fingerprint</span>
+      <code>VideoIndex_DaVinci_metadata.csv</code><span>Keywords + Description for the Resolve Media Pool (Import Metadata)</span>
+      <code>CLIP.LRF</code><span>DJI proxies are used for fast analysis and preview</span>
+    </div>
+    <div class="grid" style="margin-top:14px">
+      <div class="card" style="--c:var(--green)"><h3>Faces</h3><p>Name a face once – VIDEKI finds that person in every other clip. Uncertain matches wait for your ✓ or ✕.</p></div>
+      <div class="card" style="--c:var(--orange)"><h3>Your notes</h3><p>Tag what the camera can't see: an event, a birthday, the weather. Notes are searchable and go into the SRT.</p></div>
+      <div class="card" style="--c:var(--blue)"><h3>Your Mac at work</h3><p>A live CPU / GPU / RAM monitor in the corner shows that the work happens here. <img src="assets/monitor.gif" alt="System monitor" style="width:100%;margin-top:10px;border-radius:8px;border:1px solid var(--line)"></p></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:10px">
+  <div class="wrap">
+    <h2>Keyboard</h2>
+    <table>
+      <tr><td><span class="k">Space</span></td><td>play / pause</td></tr>
+      <tr><td><span class="k">←</span> <span class="k">→</span></td><td>one frame back / forward · with <span class="k">Shift</span>: previous / next scene</td></tr>
+      <tr><td><span class="k">A</span></td><td>add the current frame for analysis</td></tr>
+      <tr><td><span class="k">⌫</span></td><td>delete the selected frames (review)</td></tr>
+      <tr><td><span class="k">⌘K</span></td><td>search</td></tr>
+    </table>
+  </div>
+</section>
+
+<section style="padding-top:10px">
+  <div class="wrap">
+    <h2>Coming to your Mac</h2>
+    <p class="lead">VIDEKI is becoming a <b>native Apple Silicon app</b>. Drag it into Applications, open it – and that's it.</p>
+    <div class="grid">
+      <div class="card" style="--c:var(--red)"><h3>One click to start</h3><p>No Terminal, no Python, no setup scripts. A short welcome screen downloads the local AI engine and models once, with a progress bar – then it works offline forever.</p></div>
+      <div class="card" style="--c:var(--orange)"><h3>Sized for your Mac</h3><p>VIDEKI picks the right model for your memory: Gemma 4 12B on 16–32 GB machines, the larger 26B model on a Mac Studio – using the Apple GPU through MLX.</p></div>
+      <div class="card" style="--c:var(--green)"><h3>Works with what you have</h3><p>External SSDs, DJI LRF proxies, 4K LOG footage, DaVinci Resolve – VIDEKI fits into the workflow you already use.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap"><b>EKIDIO</b><br>VIDEKI · <a href="https://ekidio.github.io/stemeki/">STEMEKI</a> · <a href="https://github.com/Ekidio/padeki">PADEKI</a> · <a href="https://github.com/Ekidio/daweki_v3">DAWEKI V3</a><br><br>
+    Local AI by <a href="https://ollama.com">Ollama</a> with Google's Gemma 4 and EmbeddingGemma · faces by OpenCV YuNet + SFace · video by FFmpeg.</div>
+</footer>
+</body>
+</html>
